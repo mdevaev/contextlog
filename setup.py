@@ -4,7 +4,7 @@ import setuptools
 # =====
 if __name__ == "__main__":
     setuptools.setup(
-        name="gns",
+        name="contextlog",
         version="0.1",
         url="https://github.com/yandex-sysmon/contextlog",
         license="LGPLv3",
@@ -13,7 +13,7 @@ if __name__ == "__main__":
         description="Context-based logger and formatter",
         platforms="any",
 
-        py_modules=[
+        packages=[
             "contextlog",
         ],
 
