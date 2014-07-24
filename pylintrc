@@ -1,0 +1,30 @@
+[MASTER]
+ignore=.git
+
+[DESIGN]
+max-args=8
+
+[MESSAGES CONTROL]
+# W0511 -- FIXME/TODO/XXX
+# C0111 -- Missing docstring
+# I0011 -- Locally disabling
+# R0201 -- Method could be a function
+disable=W0511,C0111,I0011,R0201
+
+
+[REPORTS]
+msg-template={msg_id}: {path}:{line}({obj}): {msg}
+include-ids=yes
+
+[FORMAT]
+max-line-length=120
+
+[BASIC]
+# List of builtins function names that should not be used, separated by a comma
+bad-functions=
+
+# Regular expression which should only match correct argument names
+argument-rgx=[a-z_][a-z0-9_]{1,30}$
+
+# Regular expression which should only match correct variable names
+variable-rgx=[a-z_][a-z0-9_]{1,30}$
