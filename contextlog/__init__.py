@@ -23,7 +23,7 @@ class PartialFormatter(colorlog.ColoredFormatter):
         super().__init__(*args, **kwargs)
 
     def formatMessage(self, record):
-        return _PartialStringFormatter().format(self._style._fmt, **vars(record))  # pylint: disable=W0212
+        return _PartialStringFormatter().format(self._style._fmt, **vars(record))
 
     def formatException(self, exc_info):
         vars_lines = pprint.pformat(self._get_locals(exc_info)).split("\n")
@@ -71,7 +71,7 @@ class _ContextLogger(logging.Logger):  # pylint: disable=R0904
     def _log(self, level, msg, args, exc_info=None, stack_info=False, **context):
         context = _get_new_context(self._context, context)
         context["_extra"] = dict(context)
-        self._logger._log(level, msg, args, exc_info, context, stack_info)  # pylint: disable=W0212
+        self._logger._log(level, msg, args, exc_info, context, stack_info)
 
 
 class _PartialStringFormatter(string.Formatter):  # pylint: disable=W0232

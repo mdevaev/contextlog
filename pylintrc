@@ -9,7 +9,8 @@ max-args=8
 # C0111 -- Missing docstring
 # I0011 -- Locally disabling
 # R0201 -- Method could be a function
-disable=W0511,C0111,I0011,R0201
+# W0212 -- Access to a protected member of a client class
+disable=W0511,C0111,I0011,R0201,W0212
 
 
 [REPORTS]
