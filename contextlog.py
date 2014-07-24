@@ -76,6 +76,13 @@ class _ContextLogger(logging.Logger):  # pylint: disable=R0904
 
 class _PartialStringFormatter(string.Formatter):  # pylint: disable=W0232
     def get_field(self, field_name, args, kwargs):
+        if field_name == "_extra":
+            extra_text = " ".join(
+                "{}={}".format(key, repr(value))
+                for (key, value) in kwargs["_extra"].items()
+            )
+            return (extra_text, field_name)
+
         try:
             val = super().get_field(field_name, args, kwargs)
         except (KeyError, AttributeError):
