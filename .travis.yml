@@ -1,0 +1,11 @@
+language: python
+python:
+    - "3.2"
+    - "3.3"
+    - "3.4"
+install: "pip install tox"
+script: tox
+notifications:
+    hipchat:
+        rooms:
+            secure: pR1BULcnp7Zw+bsCe0bn6ajulhSPdGFg2rYt3pxCxygOmq1QE/iDV6awryqdk6nIGFTXjCjUTd1bI3KXqGKdGIcYeQ78mP+NG9sMm2anZ5ZKjbInHslg6yglTdjDZ7Q0iWDoiGUMbiAQwo0mY7aiWp8Zbo0VdQbTckmaL+upIh4=
