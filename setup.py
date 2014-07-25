@@ -24,8 +24,4 @@ if __name__ == "__main__":
             "Topic :: Software Development :: Libraries :: Python Modules",
             "Topic :: System :: Logging",
         ],
-
-        install_requires=[
-            "colorlog",
-        ],
     )

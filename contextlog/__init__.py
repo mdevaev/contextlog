@@ -2,8 +2,7 @@ import inspect
 import logging
 import string
 import pprint
-
-import colorlog
+import importlib
 
 
 # =====
@@ -16,14 +15,34 @@ def get_logger(name, bind=1, **context):
     return _ContextLogger(logging.getLogger(name), context=context)
 
 
-class PartialFormatter(colorlog.ColoredFormatter):
+# =====
+def MixedFormatter(*args, **kwargs):  # pylint: disable=C0103
+    formatters = []
+    for item in kwargs.pop("formatters", (logging.Formatter,)):
+        if isinstance(item, str):
+            parts = item.split(".")
+            assert len(parts) >= 2, "Required <module.formatter>, not {}".format(item)
+            formatter = getattr(importlib.import_module(".".join(parts[:-1])), parts[-1])
+        else:
+            formatter = item
+        formatters.append(formatter)
+
+    class _MixedFormatter(*formatters):  # pylint: disable=W0232,R0903
+        pass
+
+    return _MixedFormatter(*args, **kwargs)
+
+
+class PartialFormatter(logging.Formatter):
+    def formatMessage(self, record):
+        return _PartialStringFormatter().format(self._style._fmt, **vars(record))
+
+
+class ExceptionLocalsFormatter(logging.Formatter):
     def __init__(self, *args, **kwargs):
         self._max_vars_lines = kwargs.pop("max_vars_lines", 100)
         self._max_line_len = kwargs.pop("max_line_len", 100)
         super().__init__(*args, **kwargs)
-
-    def formatMessage(self, record):
-        return _PartialStringFormatter().format(self._style._fmt, **vars(record))
 
     def formatException(self, exc_info):
         vars_lines = pprint.pformat(self._get_locals(exc_info)).split("\n")
