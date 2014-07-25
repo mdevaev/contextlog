@@ -3,14 +3,13 @@ import logging.config
 import contextlog
 import textwrap
 import io
-import unittest
 
 import mock
 import yaml
 
 
 # =====
-class TestTypicalUsage(unittest.TestCase):
+class TestTypicalUsage:
     def test_usage(self):
         with mock.patch("sys.stderr", new_callable=io.StringIO) as mock_stderr:
             logging.config.dictConfig(yaml.load(textwrap.dedent("""
@@ -68,7 +67,7 @@ class TestTypicalUsage(unittest.TestCase):
             "Traceback (most recent call last):\n"
             "  File "
             "\"%s\", line "
-            "53, in method\n"
+            "52, in method\n"
             "    raise RuntimeError\n"
             "RuntimeError\n"
             "\n"
@@ -82,4 +81,4 @@ class TestTypicalUsage(unittest.TestCase):
             "Message #3\x1b[39;49;0m\n"
         ) % (__file__, saved_logger[0], saved_logger[0])
 
-        self.assertEqual(mock_stderr.getvalue(), output)
+        assert mock_stderr.getvalue() == output
