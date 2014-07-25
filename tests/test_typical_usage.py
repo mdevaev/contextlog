@@ -4,59 +4,59 @@ import contextlog
 import textwrap
 import io
 import unittest
-import unittest.mock
 
+import mock
 import yaml
 
 
 # =====
 class TestTypicalUsage(unittest.TestCase):
-    @unittest.mock.patch("sys.stderr", new_callable=io.StringIO)
-    def test_usage(self, mock_stderr):
-        logging.config.dictConfig(yaml.load(textwrap.dedent("""
-            version: 1
-            disable_existing_loggers: false
-            loggers:
-                test:
+    def test_usage(self):
+        with mock.patch("sys.stderr", new_callable=io.StringIO) as mock_stderr:
+            logging.config.dictConfig(yaml.load(textwrap.dedent("""
+                version: 1
+                disable_existing_loggers: false
+                loggers:
+                    test:
+                        level: DEBUG
+                        handlers: [default]
+                formatters:
+                    default:
+                        (): contextlog.MixedFormatter
+                        formatters:
+                            - colorlog.ColoredFormatter
+                            - contextlog.PartialFormatter
+                            - contextlog.ExceptionLocalsFormatter
+                        style: "{"
+                        format: "{log_color}{levelname:>7} {purple}{name:20.20}{reset} CTX={ctx} CTX_INT={ctx_internal} {message}"
+                handlers:
+                    default:
+                        level: DEBUG
+                        class: logging.StreamHandler
+                        formatter: default
+                root:
                     level: DEBUG
                     handlers: [default]
-            formatters:
-                default:
-                    (): contextlog.MixedFormatter
-                    formatters:
-                        - colorlog.ColoredFormatter
-                        - contextlog.PartialFormatter
-                        - contextlog.ExceptionLocalsFormatter
-                    style: "{"
-                    format: "{log_color}{levelname:>7} {purple}{name:20.20}{reset} CTX={ctx} CTX_INT={ctx_internal} {message}"
-            handlers:
-                default:
-                    level: DEBUG
-                    class: logging.StreamHandler
-                    formatter: default
-            root:
-                level: DEBUG
-                handlers: [default]
-        """)))
+            """)))
 
-        log = contextlog.get_logger(__name__, ctx="test")
-        log.info("Message #1")
+            log = contextlog.get_logger(__name__, ctx="test")
+            log.info("Message #1")
 
-        saved_logger = []  # Only for test!
+            saved_logger = []  # Only for test!
 
-        def method():
-            bar = 1
-            log = contextlog.get_logger(__name__, ctx_internal="method")
-            saved_logger.append(log)
-            log.debug("Message #2")
-            try:
-                raise RuntimeError
-            except:
-                log.exception("Exception")
-        method()
+            def method():
+                bar = 1
+                log = contextlog.get_logger(__name__, ctx_internal="method")
+                saved_logger.append(log)
+                log.debug("Message #2")
+                try:
+                    raise RuntimeError
+                except:
+                    log.exception("Exception")
+            method()
 
-        log = contextlog.get_logger(__name__)
-        log.info("Message #3")
+            log = contextlog.get_logger(__name__)
+            log.info("Message #3")
 
         output = (
             "\x1b[32m   INFO \x1b[35mtests.test_typical_u\x1b[39;49;0m CTX=test CTX_INT= "
