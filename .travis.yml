@@ -8,4 +8,4 @@ script: tox
 notifications:
     hipchat:
         rooms:
-            secure: pR1BULcnp7Zw+bsCe0bn6ajulhSPdGFg2rYt3pxCxygOmq1QE/iDV6awryqdk6nIGFTXjCjUTd1bI3KXqGKdGIcYeQ78mP+NG9sMm2anZ5ZKjbInHslg6yglTdjDZ7Q0iWDoiGUMbiAQwo0mY7aiWp8Zbo0VdQbTckmaL+upIh4=
+            secure: AKfufy7lL5Ea3czbc6hSZ7vqnIGIHCcphj8xNuqQbZnYUw3NnfalSnqPQgAEOmuP5ysTn/iN0B8mEeBbr5Jjf6vHLBrSfuuid/lKu0z8bOJ+9Dv5dR3zkPl7Af4nIWoxDcvldMUHlOQ1Ce6TH0Tvb7/mWDwqOA1K5Lq8ZOQhZ3A=
