@@ -39,8 +39,16 @@ class _ContextLogger(logging.Logger):  # pylint: disable=R0904
 
     def _log(self, level, msg, args, exc_info=None, stack_info=False, **context):
         context = _get_new_context(self._context, context)
-        context["_extra"] = dict(context)
+        context["_extra"] = _PrettyDict(context)
         self._logger._log(level, msg, args, exc_info, context, stack_info)
+
+
+class _PrettyDict(dict):
+    def __format__(self, _):
+        return " ".join(
+            "{}={}".format(key, repr(value))
+            for (key, value) in self.items()
+        )
 
 
 # =====
@@ -99,13 +107,6 @@ class PartialFormatter(logging.Formatter):
 
 class _PartialStringFormatter(string.Formatter):  # pylint: disable=W0232
     def get_field(self, field_name, args, kwargs):
-        if field_name == "_extra":
-            extra_text = " ".join(
-                "{}={}".format(key, repr(value))
-                for (key, value) in kwargs["_extra"].items()
-            )
-            return (extra_text, field_name)
-
         try:
             val = super().get_field(field_name, args, kwargs)
         except (KeyError, AttributeError):
