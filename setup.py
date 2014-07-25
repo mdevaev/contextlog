@@ -10,7 +10,7 @@ if __name__ == "__main__":
         license="LGPLv3",
         author="Devaev Maxim",
         author_email="mdevaev@gmail.com",
-        description="Context-based logger and formatter",
+        description="Context-based logger and formatters collection",
         platforms="any",
 
         packages=[

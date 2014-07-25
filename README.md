@@ -1,11 +1,14 @@
 contextlog
 ==========
 
-Context-based logger and formatter
+##Context-based logger and formatters collection##
 
 
 ###Example###
-```
+```python
+# pip install colorlog
+# pip install pyyaml
+
 import logging
 import logging.config
 import contextlog
@@ -20,9 +23,13 @@ loggers:
         handlers: [default]
 formatters:
     default:
-        (): contextlog.PartialFormatter
+        (): contextlog.MixedFormatter
+        formatters:
+            - colorlog.ColoredFormatter
+            - contextlog.PartialFormatter
+            - contextlog.ExceptionLocalsFormatter
         style: "{"
-        format: "{yellow}{asctime} {log_color}{levelname:>7} {purple}{name:20.20}{reset} CTX={ctx} {message}"
+        format: "{yellow}{asctime} {log_color}{levelname:>7} {purple}{name:20.20}{reset} CTX={ctx} CTX_INT={ctx_internal} {message}"
 handlers:
     default:
         level: DEBUG
@@ -38,28 +45,31 @@ log.info("Message #1")
 
 def method():
     bar = 1
-    log = contextlog.get_logger(__name__)
+    log = contextlog.get_logger(__name__, ctx_internal="method")
     log.debug("Message #2")
     try:
         raise RuntimeError
     except:
         log.exception("Exception")
 method()
+
+log = contextlog.get_logger(__name__)
+log.info("Message #3")
 ```
 Results:
 ```
-$ python3 foo.py
-2014-07-24 20:50:18,402    INFO __main__             CTX=test Message #1
-2014-07-24 20:50:18,403   DEBUG __main__             CTX=test Message #2
-2014-07-24 20:50:18,403   ERROR __main__             CTX=test Exception
+2014-07-25 16:24:49,422    INFO __main__             CTX=test CTX_INT= Message #1
+2014-07-25 16:24:49,423   DEBUG __main__             CTX=test CTX_INT=method Message #2
+2014-07-25 16:24:49,423   ERROR __main__             CTX=test CTX_INT=method Exception
 Traceback (most recent call last):
-  File "foo.py", line 36, in method
+  File "foo.py", line 43, in method
     raise RuntimeError
 RuntimeError
 
 Locals at innermost frame:
 
-{'__logger_context': {'ctx': 'test'},
+{'__logger_context': {'ctx': 'test', 'ctx_internal': 'method'},
  'bar': 1,
- 'log': <contextlog._ContextLogger object at 0x7f91d7b80860>}
+ 'log': <contextlog._ContextLogger object at 0x7f8a29c20c50>}
+2014-07-25 16:24:49,423    INFO __main__             CTX=test CTX_INT= Message #3
 ```
