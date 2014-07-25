@@ -15,6 +15,9 @@ def get_logger(name, bind=1, **context):
     return _ContextLogger(logging.getLogger(name), context=context)
 
 
+getlogger = get_logger  # pylint: disable=C0103
+
+
 def _get_new_context(old_context, new_context):
     context = old_context.copy()
     context.update(new_context)
@@ -31,6 +34,8 @@ class _ContextLogger(logging.Logger):  # pylint: disable=R0904
 
     def get_logger(self, **context):
         return _ContextLogger(self._logger, _get_new_context(self._context, context))
+
+    getlogger = get_logger
 
     def _log(self, level, msg, args, exc_info=None, stack_info=False, **context):
         context = _get_new_context(self._context, context)
