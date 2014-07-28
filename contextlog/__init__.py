@@ -53,6 +53,7 @@ class _PrettyDict(dict):
 
 # =====
 def MixedFormatter(*args, **kwargs):  # pylint: disable=C0103
+    # XXX: About a naming: logger is configured by classes, so it should look like, as a class
     formatters = []
     for item in kwargs.pop("formatters", (logging.Formatter,)):
         if isinstance(item, str):
