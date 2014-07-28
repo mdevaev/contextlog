@@ -47,4 +47,9 @@ def test_typical_usage(capsys, typical_usage_config, typical_usage_stderr):
     log.info("Message #3")
 
     captured_stderr = capsys.readouterr()[1]
-    assert captured_stderr == typical_usage_stderr % (__file__, saved_logger, saved_logger)
+    typical_usage_stderr = typical_usage_stderr.format(
+        module_path=__file__,
+        logger=saved_logger,
+    )
+
+    assert captured_stderr == typical_usage_stderr
