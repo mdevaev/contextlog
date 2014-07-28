@@ -1,7 +1,7 @@
+import os
 import logging
 import logging.config
 import contextlog
-import textwrap
 import pkgutil
 
 import pytest
@@ -9,37 +9,22 @@ import yaml
 
 
 # =====
+def _get_content(name):
+    return pkgutil.get_data(__package__, os.path.join("data", name)).decode()
+
+
+@pytest.fixture(scope="module")
+def typical_usage_config():
+    return yaml.load(_get_content("typical_usage_config.yaml"))
+
+
 @pytest.fixture(scope="module")
 def typical_usage_stderr():
-    return pkgutil.get_data(__package__, "data/typical_usage_stderr.txt").decode()
+    return _get_content("typical_usage_stderr.txt")
 
 
-def test_typical_usage(capsys, typical_usage_stderr):
-    logging.config.dictConfig(yaml.load(textwrap.dedent("""
-        version: 1
-        disable_existing_loggers: false
-        loggers:
-            test:
-                level: DEBUG
-                handlers: [default]
-        formatters:
-            default:
-                (): contextlog.MixedFormatter
-                formatters:
-                    - colorlog.ColoredFormatter
-                    - contextlog.PartialFormatter
-                    - contextlog.ExceptionLocalsFormatter
-                style: "{"
-                format: "{log_color}{levelname:>7} {purple}{name:20.20}{reset} CTX={ctx} CTX_INT={ctx_internal} {message}"
-        handlers:
-            default:
-                level: DEBUG
-                class: logging.StreamHandler
-                formatter: default
-        root:
-            level: DEBUG
-            handlers: [default]
-    """)))
+def test_typical_usage(capsys, typical_usage_config, typical_usage_stderr):
+    logging.config.dictConfig(typical_usage_config)
 
     log = contextlog.get_logger(__name__, ctx="test")
     log.info("Message #1")

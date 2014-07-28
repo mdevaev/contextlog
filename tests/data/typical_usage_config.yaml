@@ -1,0 +1,23 @@
+version: 1
+disable_existing_loggers: false
+loggers:
+    test:
+        level: DEBUG
+        handlers: [default]
+formatters:
+    default:
+        (): contextlog.MixedFormatter
+        formatters:
+            - colorlog.ColoredFormatter
+            - contextlog.PartialFormatter
+            - contextlog.ExceptionLocalsFormatter
+        style: "{"
+        format: "{log_color}{levelname:>7} {purple}{name:20.20}{reset} CTX={ctx} CTX_INT={ctx_internal} {message}"
+handlers:
+    default:
+        level: DEBUG
+        class: logging.StreamHandler
+        formatter: default
+root:
+    level: DEBUG
+    handlers: [default]

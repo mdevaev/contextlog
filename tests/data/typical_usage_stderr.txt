@@ -2,7 +2,7 @@
 [37m  DEBUG [35mtests.test_typical_u[39;49;0m CTX=test CTX_INT=method Message #2[39;49;0m
 [31m  ERROR [35mtests.test_typical_u[39;49;0m CTX=test CTX_INT=method Exception
 Traceback (most recent call last):
-  File "%s", line 55, in method
+  File "%s", line 40, in method
     raise RuntimeError
 RuntimeError
 
