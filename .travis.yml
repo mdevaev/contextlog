@@ -7,9 +7,9 @@ env:
         - TOXENV=py33
         - TOXENV=flake8
         - TOXENV=pylint
-        - TOXENV=tests
-install: "pip install tox"
+install: "pip install tox coveralls"
 script: tox
+after_success: if [ "$TOXENV" = "py34" ]; then coveralls; fi
 notifications:
     hipchat:
         rooms:
