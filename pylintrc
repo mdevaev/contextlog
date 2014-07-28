@@ -1,6 +1,3 @@
-[MASTER]
-ignore=.git
-
 [DESIGN]
 max-args=8
 
