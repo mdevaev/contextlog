@@ -1,6 +1,7 @@
 [DESIGN]
 max-args=8
 min-public-methods=0
+max-public-methods=100
 
 [MESSAGES CONTROL]
 # W0511 -- FIXME/TODO/XXX

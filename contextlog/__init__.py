@@ -24,7 +24,7 @@ def _get_new_context(old_context, new_context):
     return context
 
 
-class _ContextLogger(logging.Logger):  # pylint: disable=R0904
+class _ContextLogger(logging.Logger):
     def __init__(self, logger, context):
         super().__init__(logger.name)
         self._logger = logger
@@ -106,7 +106,7 @@ class PartialFormatter(logging.Formatter):
         return _PartialStringFormatter().format(self._style._fmt, **vars(record))
 
 
-class _PartialStringFormatter(string.Formatter):  # pylint: disable=W0232
+class _PartialStringFormatter(string.Formatter):
     def get_field(self, field_name, args, kwargs):
         try:
             val = super().get_field(field_name, args, kwargs)
