@@ -6,7 +6,7 @@ loggers:
         handlers: [default]
 formatters:
     default:
-        (): contextlog.MixedFormatter
+        (): contextlog.make_mixed_formatter
         formatters:
             - colorlog.ColoredFormatter
             - contextlog.PartialFormatter
