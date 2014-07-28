@@ -2,14 +2,19 @@ import logging
 import logging.config
 import contextlog
 import textwrap
-import io
+import pkgutil
 
-import mock
+import pytest
 import yaml
 
 
 # =====
-def test_typical_usage(capsys):
+@pytest.fixture(scope="module")
+def typical_usage_stderr():
+    return pkgutil.get_data(__package__, "data/typical_usage_stderr.txt").decode()
+
+
+def test_typical_usage(capsys, typical_usage_stderr):
     logging.config.dictConfig(yaml.load(textwrap.dedent("""
         version: 1
         disable_existing_loggers: false
@@ -55,28 +60,5 @@ def test_typical_usage(capsys):
     log = contextlog.get_logger(__name__)
     log.info("Message #3")
 
-    output = (
-        "\x1b[32m   INFO \x1b[35mtests.test_typical_u\x1b[39;49;0m CTX=test CTX_INT= "
-        "Message #1\x1b[39;49;0m\n"
-        "\x1b[37m  DEBUG \x1b[35mtests.test_typical_u\x1b[39;49;0m CTX=test "
-        "CTX_INT=method Message #2\x1b[39;49;0m\n"
-        "\x1b[31m  ERROR \x1b[35mtests.test_typical_u\x1b[39;49;0m CTX=test "
-        "CTX_INT=method Exception\n"
-        "Traceback (most recent call last):\n"
-        "  File "
-        "\"%s\", line "
-        "50, in method\n"
-        "    raise RuntimeError\n"
-        "RuntimeError\n"
-        "\n"
-        "Locals at innermost frame:\n"
-        "\n"
-        "{'__logger_context': {'ctx': 'test', 'ctx_internal': 'method'},\n"
-        " 'bar': 1,\n"
-        " 'log': %s,\n"
-        " 'saved_logger': [%s]}\x1b[39;49;0m\n"
-        "\x1b[32m   INFO \x1b[35mtests.test_typical_u\x1b[39;49;0m CTX=test CTX_INT= "
-        "Message #3\x1b[39;49;0m\n"
-    ) % (__file__, saved_logger[0], saved_logger[0])
-
-    assert capsys.readouterr()[1] == output
+    captured_stderr = capsys.readouterr()[1]
+    assert captured_stderr == typical_usage_stderr % (__file__, saved_logger[0], saved_logger[0])
