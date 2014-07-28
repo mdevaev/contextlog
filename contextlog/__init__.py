@@ -64,7 +64,7 @@ def MixedFormatter(*args, **kwargs):  # pylint: disable=C0103
             formatter = item
         formatters.append(formatter)
 
-    class _MixedFormatter(*formatters):  # pylint: disable=W0232,R0903
+    class _MixedFormatter(*formatters):
         pass
 
     return _MixedFormatter(*args, **kwargs)

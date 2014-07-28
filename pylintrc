@@ -1,5 +1,6 @@
 [DESIGN]
 max-args=8
+min-public-methods=0
 
 [MESSAGES CONTROL]
 # W0511 -- FIXME/TODO/XXX
@@ -7,7 +8,8 @@ max-args=8
 # I0011 -- Locally disabling
 # R0201 -- Method could be a function
 # W0212 -- Access to a protected member of a client class
-disable=W0511,C0111,I0011,R0201,W0212
+# W0232 -- Class has no __init__ method
+disable=W0511,C0111,I0011,R0201,W0212,W0232
 
 
 [REPORTS]
