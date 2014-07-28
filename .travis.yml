@@ -1,0 +1,16 @@
+language: python
+python:
+    - "3.4"
+env:
+    matrix:
+        - TOXENV=py34
+        - TOXENV=py33
+        - TOXENV=flake8
+        - TOXENV=pylint
+install: "pip install tox coveralls"
+script: tox
+after_success: if [ "$TOXENV" = "py34" ]; then coveralls; fi
+notifications:
+    hipchat:
+        rooms:
+            secure: AKfufy7lL5Ea3czbc6hSZ7vqnIGIHCcphj8xNuqQbZnYUw3NnfalSnqPQgAEOmuP5ysTn/iN0B8mEeBbr5Jjf6vHLBrSfuuid/lKu0z8bOJ+9Dv5dR3zkPl7Af4nIWoxDcvldMUHlOQ1Ce6TH0Tvb7/mWDwqOA1K5Lq8ZOQhZ3A=
