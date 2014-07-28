@@ -1,5 +1,9 @@
 contextlog
 ==========
+[![Build Status](https://travis-ci.org/yandex-sysmon/contextlog.svg?branch=master)](https://travis-ci.org/yandex-sysmon/contextlog)
+[![Coverage Status](https://coveralls.io/repos/yandex-sysmon/contextlog/badge.png?branch=master)](https://coveralls.io/r/yandex-sysmon/contextlog?branch=master)
+[![Latest Version](https://pypip.in/v/contextlog/badge.png)](https://pypi.python.org/pypi/contextlog/)
+
 
 ##Context-based logger and formatters collection##
 
