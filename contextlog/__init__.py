@@ -8,7 +8,7 @@ import importlib
 # =====
 def get_logger(name=None, bind=1, **context):
     if name is None:
-        caller_frame = inspect.stack()[1]
+        caller_frame = inspect.stack()[bind]
         caller_module = inspect.getmodule(caller_frame[0])
         name = caller_module.__name__
 
