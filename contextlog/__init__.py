@@ -6,7 +6,12 @@ import importlib
 
 
 # =====
-def get_logger(name, bind=1, **context):
+def get_logger(name=None, bind=1, **context):
+    if name is None:
+        caller_frame = inspect.stack()[1]
+        caller_module = inspect.getmodule(caller_frame[0])
+        name = caller_module.__name__
+
     for (frame, _, _, _, _, _) in inspect.stack()[1:]:
         if "__logger_context" in frame.f_locals:
             context = _get_new_context(frame.f_locals["__logger_context"], context)
