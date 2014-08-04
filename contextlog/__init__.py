@@ -117,5 +117,6 @@ class _PartialStringFormatter(string.Formatter):
             val = super().get_field(field_name, args, kwargs)
         except (KeyError, AttributeError):
             val = ("", field_name)
-        kwargs["_extra"].pop(field_name.split(".")[0], None)
+        if "_extra" in kwargs:
+            kwargs["_extra"].pop(field_name.split(".")[0], None)
         return val
