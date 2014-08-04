@@ -46,6 +46,8 @@ def test_typical_usage(capsys, typical_usage_config, typical_usage_stderr):
     log = contextlog.get_logger()
     log.info("Message #3")
 
+    logging.getLogger(__name__).info("Message #4")
+
     captured_stderr = capsys.readouterr()[1]
     typical_usage_stderr = typical_usage_stderr.format(
         module_path=__file__,

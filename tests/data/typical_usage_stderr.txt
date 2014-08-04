@@ -13,3 +13,4 @@ Locals at innermost frame:
  'log': {logger},
  'saved_logger': {logger}}}[39;49;0m
 [32m   INFO [35mtests.test_typical_u[39;49;0m CTX=test CTX_INT= Message #3[39;49;0m
+[32m   INFO [35mtests.test_typical_u[39;49;0m CTX= CTX_INT= Message #4[39;49;0m
