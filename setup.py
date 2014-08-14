@@ -5,7 +5,7 @@ import setuptools
 if __name__ == "__main__":
     setuptools.setup(
         name="contextlog",
-        version="0.3",
+        version="0.4",
         url="https://github.com/yandex-sysmon/contextlog",
         license="LGPLv3",
         author="Devaev Maxim",
