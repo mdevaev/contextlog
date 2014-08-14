@@ -1,3 +1,4 @@
+import sys
 import inspect
 import logging
 import string
@@ -8,19 +9,30 @@ import importlib
 # =====
 def get_logger(name=None, bind=1, **context):
     if name is None:
-        caller_frame = inspect.stack()[bind]
-        caller_module = inspect.getmodule(caller_frame[0])
+        caller_frame = _get_stack_frames()[bind]
+        caller_module = inspect.getmodule(caller_frame)
         name = caller_module.__name__
-
-    for (frame, _, _, _, _, _) in inspect.stack()[1:]:
+    for frame in _get_stack_frames()[1:]:
         if "__logger_context" in frame.f_locals:
             context = _get_new_context(frame.f_locals["__logger_context"], context)
             break
-    inspect.stack()[bind][0].f_locals["__logger_context"] = context
-    return _ContextLogger(logging.getLogger(name), context=context)
+    _get_stack_frames()[bind].f_locals["__logger_context"] = context
+    logger = _ContextLogger(logging.getLogger(name), context=context)
+    return logger
 
 
 getlogger = get_logger
+
+
+def _get_stack_frames():
+    # Get a list of records for a frame and all higher (calling) frames.
+    # XXX: We do not use inspect.stack(), because getframeinfo(), which he uses takes too much time under PyPy.
+    frame = sys._getframe(1)
+    frames = []
+    while frame is not None:
+        frames.append(frame)
+        frame = frame.f_back
+    return frames
 
 
 def _get_new_context(old_context, new_context):
