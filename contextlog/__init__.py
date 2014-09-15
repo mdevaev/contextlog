@@ -1,27 +1,119 @@
+# pylint: disable=protected-access
+
+
 import sys
 import inspect
 import logging
 import string
 import pprint
 import importlib
+import threading
 
 
 # =====
-def get_logger(name=None, bind=1, **context):
-    if name is None:
-        caller_frame = _get_stack_frames()[bind]
-        caller_module = inspect.getmodule(caller_frame)
-        name = caller_module.__name__
-    for frame in _get_stack_frames()[1:]:
-        if "__logger_context" in frame.f_locals:
-            context = _get_new_context(frame.f_locals["__logger_context"], context)
-            break
-    _get_stack_frames()[bind].f_locals["__logger_context"] = context
+def get_logger(name=None, depth=1, **context):
+    name = (name or _get_caller_module(depth + 1).__name__)
+    context = _bind_context(depth + 1, context)
     logger = _ContextLogger(logging.getLogger(name), context=context)
     return logger
 
 
-getlogger = get_logger
+def patch_logging():
+    """
+        This hack is used to log the context inside standard and thirdparty libraries which
+        uses usually python logging. The context inherits from caller using contextlog.
+    """
+    if logging.getLoggerClass() != _SlaveContextLogger:
+        logging.setLoggerClass(_SlaveContextLogger)
+
+
+class _SlaveContextLogger(logging.Logger):
+    def _log(self, level, msg, args, exc_info=None, extra=None, stack_info=False):
+        if not isinstance(extra, _ContextDict):
+            # This condition is satisfied only when "extra" is not a context from _ContextLog._log().
+            # If not a context - get context from a caller and merge with "extra".
+            extra = _merge_contexts(_get_context(), (extra or {}))
+        super()._log(level, msg, args, exc_info, extra, stack_info)
+
+
+def patch_threading():
+    """
+        Running threads have a different stack, so the context will be missing if you do
+        not pass it explicitly. This hack allows you to inherit the context from the method
+        that started a thread. This is useful for libraries that do not use contextlog.
+    """
+    if threading.Thread.start != _thread_start:
+        # We are change the methods, not a class, because some other classes can inherit it BEFORE patching
+        threading.Thread.start = _thread_start
+        threading.Thread._bootstrap = _thread_bootstrap
+
+
+_orig_thread_start = threading.Thread.start
+
+
+def _thread_start(self):
+    self.__context = _get_context()  # Save context from parent thread
+    _orig_thread_start(self)
+
+
+_orig_thread_bootstrap = threading.Thread._bootstrap
+
+
+def _thread_bootstrap(self):
+    _bind_context(1, self.__context)  # Apply context inside a new thread
+    _orig_thread_bootstrap(self)
+
+
+# =====
+class _ContextLogger(logging.Logger):
+    def __init__(self, logger, context):
+        super().__init__(logger.name)
+        self._logger = logger
+        self._context = context
+        self.level = logger.level
+        self.parent = logger.parent
+
+    def get_context(self):
+        return self._context
+
+    def get_logger(self, **context):
+        return _ContextLogger(self._logger, _merge_contexts(self._context, context))
+
+    def _log(self, level, msg, args, exc_info=None, stack_info=False, **context):
+        context = _ContextDict(_merge_contexts(self._context, context))
+        context["_extra"] = _PrettyDict(context)
+        self._logger._log(level, msg, args, exc_info, context, stack_info)
+
+
+class _ContextDict(dict):
+    pass  # This type is needed to distinguish context from ordinary field "extra"
+
+
+def _get_context():
+    # Finds variable conteins context inside the stack
+    for frame in _get_stack_frames()[1:]:
+        if "__logger_context" in frame.f_locals:
+            return frame.f_locals["__logger_context"].copy()
+    return {}
+
+
+def _bind_context(depth, context):
+    # Creates a variable with the context in a certain depth of the stack
+    context = _merge_contexts(_get_context(), context)
+    _get_stack_frames()[depth].f_locals["__logger_context"] = context
+    return context
+
+
+def _merge_contexts(left, right):
+    context = left.copy()
+    context.update(right)
+    return context
+
+
+def _get_caller_module(depth):
+    caller_frame = _get_stack_frames()[depth]
+    caller_module = inspect.getmodule(caller_frame)
+    return caller_module
 
 
 def _get_stack_frames():
@@ -35,32 +127,8 @@ def _get_stack_frames():
     return frames
 
 
-def _get_new_context(old_context, new_context):
-    context = old_context.copy()
-    context.update(new_context)
-    return context
-
-
-class _ContextLogger(logging.Logger):
-    def __init__(self, logger, context):
-        super().__init__(logger.name)
-        self._logger = logger
-        self._context = context
-        self.level = logger.level
-        self.parent = logger.parent
-
-    def get_logger(self, **context):
-        return _ContextLogger(self._logger, _get_new_context(self._context, context))
-
-    getlogger = get_logger
-
-    def _log(self, level, msg, args, exc_info=None, stack_info=False, **context):
-        context = _get_new_context(self._context, context)
-        context["_extra"] = _PrettyDict(context)
-        self._logger._log(level, msg, args, exc_info, context, stack_info)
-
-
 class _PrettyDict(dict):
+    # This type needs to log "_extra" field.
     def __format__(self, _):
         return " ".join(
             "{}={}".format(key, repr(value))
@@ -130,5 +198,6 @@ class _PartialStringFormatter(string.Formatter):
         except (KeyError, AttributeError):
             val = ("", field_name)
         if "_extra" in kwargs:
+            # In "_extra" remain only those fields that have not been explicitly requested by the formatter
             kwargs["_extra"].pop(field_name.split(".")[0], None)
         return val

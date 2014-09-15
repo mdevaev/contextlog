@@ -2,14 +2,13 @@
 [37m  DEBUG [35mtests.test_typical_u[0m CTX=test CTX_INT=method Message #2[0m
 [31m  ERROR [35mtests.test_typical_u[0m CTX=test CTX_INT=method Exception
 Traceback (most recent call last):
-  File "{module_path}", line 41, in method
+  File "{module_path}", line 40, in method
     raise RuntimeError
 RuntimeError
 
 Locals at innermost frame:
 
 {{'__logger_context': {{'ctx': 'test', 'ctx_internal': 'method'}},
- 'bar': 1,
  'log': {logger},
  'saved_logger': {logger}}}[0m
 [32m   INFO [35mtests.test_typical_u[0m CTX=test CTX_INT= Message #3[0m

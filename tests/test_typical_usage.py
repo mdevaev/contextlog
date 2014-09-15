@@ -23,7 +23,7 @@ def typical_usage_stderr():
     return _get_content("typical_usage_stderr.txt")
 
 
-def test_typical_usage(capsys, typical_usage_config, typical_usage_stderr):
+def test_typical_usage(capsys, typical_usage_config, typical_usage_stderr):  # pylint: disable=redefined-outer-name
     logging.config.dictConfig(typical_usage_config)
 
     log = contextlog.get_logger(ctx="test")
@@ -32,14 +32,13 @@ def test_typical_usage(capsys, typical_usage_config, typical_usage_stderr):
     saved_logger = None  # Only for test!
 
     def method():
-        bar = 1
         log = contextlog.get_logger(ctx_internal="method")
         nonlocal saved_logger
         saved_logger = log
         log.debug("Message #2")
         try:
             raise RuntimeError
-        except:
+        except Exception:
             log.exception("Exception")
     method()
 
