@@ -3,18 +3,21 @@ max-args=8
 min-public-methods=0
 max-public-methods=100
 
-[MESSAGES CONTROL]
-# W0511 -- FIXME/TODO/XXX
-# C0111 -- Missing docstring
-# I0011 -- Locally disabling
-# R0201 -- Method could be a function
-# W0212 -- Access to a protected member of a client class
-# W0232 -- Class has no __init__ method
-disable=W0511,C0111,I0011,R0201,W0212,W0232
+[TYPECHECK]
+ignored-classes=pytest
 
+[MESSAGES CONTROL]
+disable =
+    locally-disabled,
+    fixme,
+    missing-docstring,
+    duplicate-code,
+    no-self-use,
+    no-init,
+    broad-except,
 
 [REPORTS]
-msg-template={msg_id}: {path}:{line}({obj}): {msg}
+msg-template={symbol} -- {path}:{line}({obj}): {msg}
 include-ids=yes
 
 [FORMAT]
