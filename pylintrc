@@ -15,6 +15,7 @@ disable =
     no-self-use,
     no-init,
     broad-except,
+    bad-continuation,
 
 [REPORTS]
 msg-template={symbol} -- {path}:{line}({obj}): {msg}
