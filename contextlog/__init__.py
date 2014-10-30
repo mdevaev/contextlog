@@ -2,7 +2,11 @@
 
 
 import sys
+import os
+import io
+import contextlib
 import inspect
+import traceback
 import logging
 import string
 import pprint
@@ -34,6 +38,24 @@ class _SlaveContextLogger(logging.Logger):
             # If not a context - get context from a caller and merge with "extra".
             extra = _merge_contexts(_get_context(), (extra or {}))
         super()._log(level, msg, args, exc_info, extra, stack_info)
+
+    def findCaller(self, stack_info=False):
+        # XXX: Simplified copypaste from logging/__init__.py
+        # Removed py2exe and IronPython features
+        frame = sys._getframe()
+        while hasattr(frame, "f_code"):
+            code = frame.f_code
+            if os.path.normcase(code.co_filename) in (os.path.normcase(__file__), logging._srcfile):
+                frame = frame.f_back
+                continue
+            sinfo = None
+            if stack_info:
+                with contextlib.closing(io.StringIO()) as sio:
+                    sio.write("Stack (most recent call last):\n")
+                    traceback.print_stack(frame, file=sio)
+                    sinfo = sio.getvalue().strip()
+            return (code.co_filename, frame.f_lineno, code.co_name, sinfo)
+        return ("(unknown file)", 0, "(unknown function)", None)
 
 
 def patch_threading():

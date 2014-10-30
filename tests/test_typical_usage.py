@@ -23,34 +23,48 @@ def typical_usage_stderr():
     return _get_content("typical_usage_stderr.txt")
 
 
-def test_typical_usage(capsys, typical_usage_config, typical_usage_stderr):  # pylint: disable=redefined-outer-name
-    logging.config.dictConfig(typical_usage_config)
+def test_typical_usage_patched(  # pylint: disable=redefined-outer-name
+    capsys, typical_usage_config, typical_usage_stderr,
+):
+    try:
+        orig_logger_class = logging.getLoggerClass()
+        contextlog.patch_logging()
+        test_typical_usage(capsys, typical_usage_config, typical_usage_stderr)
+    finally:
+        logging.setLoggerClass(orig_logger_class)
 
-    log = contextlog.get_logger(ctx="test")
-    log.info("Message #1")
 
-    saved_logger = None  # Only for test!
+def test_typical_usage(  # pylint: disable=redefined-outer-name
+    capsys, typical_usage_config, typical_usage_stderr,
+):
+    try:
+        logging.config.dictConfig(typical_usage_config)
 
-    def method():
-        log = contextlog.get_logger(ctx_internal="method")
-        nonlocal saved_logger
-        saved_logger = log
-        log.debug("Message #2")
-        try:
-            raise RuntimeError
-        except Exception:
-            log.exception("Exception")
-    method()
+        log = contextlog.get_logger(ctx="test")
+        log.info("Message #1")
 
-    log = contextlog.get_logger()
-    log.info("Message #3")
+        saved_logger = None  # Only for test!
 
-    logging.getLogger(__name__).info("Message #4")
+        def method():
+            log = contextlog.get_logger(ctx_internal="method")
+            nonlocal saved_logger
+            saved_logger = log
+            log.debug("Message #2")
+            try:
+                raise RuntimeError
+            except Exception:
+                log.exception("Exception")
+        method()
 
-    captured_stderr = capsys.readouterr()[1]
-    typical_usage_stderr = typical_usage_stderr.format(
-        module_path=__file__,
-        logger=saved_logger,
-    )
+        log = contextlog.get_logger()
+        log.info("Message #3")
 
-    assert captured_stderr == typical_usage_stderr
+        captured_stderr = capsys.readouterr()[1]
+        typical_usage_stderr = typical_usage_stderr.format(
+            module_path=__file__,
+            logger=saved_logger,
+        )
+
+        assert captured_stderr == typical_usage_stderr
+    finally:
+        logging.Logger.manager.loggerDict = {}

@@ -12,7 +12,7 @@ formatters:
             - contextlog.PartialFormatter
             - contextlog.ExceptionLocalsFormatter
         style: "{"
-        format: "{log_color}{levelname:>7} {purple}{name:20.20}{reset} CTX={ctx} CTX_INT={ctx_internal} {message}"
+        format: "{log_color}{levelname:>7} {purple}{name:20.20}{reset} CTX={ctx} CTX_INT={ctx_internal} {filename}:{lineno}:{funcName} {message}"
 handlers:
     default:
         level: DEBUG

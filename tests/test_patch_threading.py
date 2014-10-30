@@ -1,4 +1,5 @@
 import threading
+import logging
 
 import contextlog
 
@@ -30,3 +31,4 @@ def test_patch_threading():
     finally:
         threading.Thread.start = orig_thread_start
         threading.Thread._bootstrap = orig_thread_bootstrap  # pylint: disable=protected-access
+        logging.Logger.manager.loggerDict = {}
