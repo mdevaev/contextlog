@@ -190,8 +190,8 @@ class ExceptionLocalsFormatter(logging.Formatter):
             vars_lines = vars_lines[:self._max_vars_lines]
             vars_lines.append("...")
 
-        for count in range(len(vars_lines)):
-            line = vars_lines[count]
+        for (count, line) in enumerate(vars_lines):
+            # strip lines
             if len(line) > self._max_line_len:
                 vars_lines[count] = line[:self._max_line_len - 3] + "..."
 

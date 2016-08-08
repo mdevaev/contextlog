@@ -1,11 +1,11 @@
 import os
 import logging
 import logging.config
-import contextlog
 import pkgutil
 
 import pytest
 import yaml
+import contextlog
 
 
 # =====

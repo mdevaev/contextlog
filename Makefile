@@ -7,7 +7,7 @@ pypi:
 
 clean:
 	rm -rf build dist *.egg-info
-	find . -type d -name __pycache__ -exec rm -rf '{}' \;
+	find . -name __pycache__ | xargs rm -rf
 
 clean-all: clean
 	rm -rf .tox
