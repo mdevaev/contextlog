@@ -16,7 +16,11 @@ import threading
 
 # =====
 def get_logger(name=None, depth=1, **context):
-    name = (name or _get_caller_module(depth + 1).__name__)
+    if name is None:
+        module = _get_caller_module(depth + 1)
+        if module is None:
+            module = sys.modules["__main__"]
+        name = module.__name__
     context = _bind_context(depth + 1, context)
     logger = _ContextLogger(logging.getLogger(name), context=context)
     return logger
