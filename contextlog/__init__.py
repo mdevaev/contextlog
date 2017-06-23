@@ -5,7 +5,6 @@ import sys
 import os
 import io
 import contextlib
-import inspect
 import traceback
 import logging
 import string
@@ -17,10 +16,7 @@ import threading
 # =====
 def get_logger(name=None, depth=1, **context):
     if name is None:
-        module = _get_caller_module(depth + 1)
-        if module is None:
-            module = sys.modules["__main__"]
-        name = module.__name__
+        name = _get_stack_frames()[depth].f_globals["__name__"]
     context = _bind_context(depth + 1, context)
     logger = _ContextLogger(logging.getLogger(name), context=context)
     return logger
@@ -134,12 +130,6 @@ def _merge_contexts(left, right):
     context = left.copy()
     context.update(right)
     return context
-
-
-def _get_caller_module(depth):
-    caller_frame = _get_stack_frames()[depth]
-    caller_module = inspect.getmodule(caller_frame)
-    return caller_module
 
 
 def _get_stack_frames():
