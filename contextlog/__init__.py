@@ -32,6 +32,55 @@ def patch_logging():
         logging.setLoggerClass(_SlaveContextLogger)
 
 
+def patch_logging_root():
+    def critical(msg, *args, **kwargs):
+        if len(logging.root.handlers) == 0:  # pylint: disable=len-as-condition
+            logging.basicConfig()
+        get_logger().critical(msg, *args, **kwargs)
+
+    logging.fatal = logging.critical = critical
+
+    def error(msg, *args, **kwargs):
+        if len(logging.root.handlers) == 0:  # pylint: disable=len-as-condition
+            logging.basicConfig()
+        get_logger().error(msg, *args, **kwargs)
+
+    logging.error = error
+
+    def exception(msg, *args, exc_info=True, **kwargs):
+        get_logger().error(msg, *args, exc_info=exc_info, **kwargs)
+
+    logging.exception = exception
+
+    def warning(msg, *args, **kwargs):
+        if len(logging.root.handlers) == 0:  # pylint: disable=len-as-condition
+            logging.basicConfig()
+        get_logger().warning(msg, *args, **kwargs)
+
+    logging.warning = logging.warn = warning
+
+    def info(msg, *args, **kwargs):
+        if len(logging.root.handlers) == 0:  # pylint: disable=len-as-condition
+            logging.basicConfig()
+        get_logger().info(msg, *args, **kwargs)
+
+    logging.info = info
+
+    def debug(msg, *args, **kwargs):
+        if len(logging.root.handlers) == 0:  # pylint: disable=len-as-condition
+            logging.basicConfig()
+        get_logger().debug(msg, *args, **kwargs)
+
+    logging.debug = debug
+
+    def log(level, msg, *args, **kwargs):
+        if len(logging.root.handlers) == 0:  # pylint: disable=len-as-condition
+            logging.basicConfig()
+        get_logger().log(level, msg, *args, **kwargs)
+
+    logging.log = log
+
+
 class _SlaveContextLogger(logging.Logger):
     def _log(self, level, msg, args, exc_info=None, extra=None, stack_info=False):
         if not isinstance(extra, _ContextDict):
