@@ -5,7 +5,7 @@ import setuptools
 if __name__ == "__main__":
     setuptools.setup(
         name="contextlog",
-        version="0.8",
+        version="1.0",
         url="https://github.com/mdevaev/contextlog",
         license="LGPLv3",
         author="Maxim Devaev",
