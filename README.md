@@ -10,7 +10,6 @@ contextlog
 
 ###Example###
 ```python
-# pip install colorlog
 # pip install pyyaml
 
 import logging
@@ -27,11 +26,7 @@ loggers:
         handlers: [default]
 formatters:
     default:
-        (): contextlog.MixedFormatter
-        formatters:
-            - colorlog.ColoredFormatter
-            - contextlog.PartialFormatter
-            - contextlog.ExceptionLocalsFormatter
+        (): contextlog.SmartFormatter
         style: "{"
         format: "{yellow}{asctime} {log_color}{levelname:>7} {purple}{name:20.20}{reset} CTX={ctx} CTX_INT={ctx_internal} {message}"
 handlers:

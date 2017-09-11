@@ -6,15 +6,19 @@ if __name__ == "__main__":
     setuptools.setup(
         name="contextlog",
         version="0.8",
-        url="https://github.com/yandex-sysmon/contextlog",
+        url="https://github.com/mdevaev/contextlog",
         license="LGPLv3",
-        author="Devaev Maxim",
+        author="Maxim Devaev",
         author_email="mdevaev@gmail.com",
         description="Context-based logger and formatters collection",
         platforms="any",
 
         packages=[
             "contextlog",
+        ],
+
+        install_requires=[
+            "colorlog",
         ],
 
         classifiers=[  # http://pypi.python.org/pypi?:action=list_classifiers

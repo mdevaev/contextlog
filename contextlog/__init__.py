@@ -9,8 +9,9 @@ import traceback
 import logging
 import string
 import pprint
-import importlib
 import threading
+
+import colorlog
 
 
 # =====
@@ -51,9 +52,9 @@ class _SlaveContextLogger(logging.Logger):
             sinfo = None
             if stack_info:
                 with contextlib.closing(io.StringIO()) as sio:
-                    sio.write("Stack (most recent call last):\n")
+                    sio.write("Stack (most recent call last):\n")  # pylint: disable=no-member
                     traceback.print_stack(frame, file=sio)
-                    sinfo = sio.getvalue().strip()
+                    sinfo = sio.getvalue().strip()  # pylint: disable=no-member
             return (code.co_filename, frame.f_lineno, code.co_name, sinfo)
         return ("(unknown file)", 0, "(unknown function)", None)
 
@@ -101,7 +102,7 @@ class _ContextLogger(logging.Logger):
     def get_logger(self, **context):
         return _ContextLogger(self._logger, _merge_contexts(self._context, context))
 
-    def _log(self, level, msg, args, exc_info=None, stack_info=False, **context):
+    def _log(self, level, msg, args, exc_info=None, stack_info=False, **context):  # pylint: disable=arguments-differ
         context = _ContextDict(_merge_contexts(self._context, context))
         context["_extra"] = _PrettyDict(context)
         self._logger._log(level, msg, args, exc_info, context, stack_info)
@@ -153,31 +154,16 @@ class _PrettyDict(dict):
 
 
 # =====
-def make_mixed_formatter(*args, **kwargs):
-    # XXX: About a naming: logger is configured by classes, so it should look like, as a class
-    formatters = []
-    for item in kwargs.pop("formatters", (logging.Formatter,)):
-        if isinstance(item, str):
-            parts = item.split(".")
-            assert len(parts) >= 2, "Required <module.formatter>, not {}".format(item)
-            formatter = getattr(importlib.import_module(".".join(parts[:-1])), parts[-1])
-        else:
-            formatter = item
-        formatters.append(formatter)
-
-    class _MixedFormatter(*formatters):
-        pass
-
-    return _MixedFormatter(*args, **kwargs)
-
-
-class ExceptionLocalsFormatter(logging.Formatter):
+class SmartFormatter(colorlog.ColoredFormatter):
     def __init__(self, *args, **kwargs):
         self._max_vars_lines = kwargs.pop("max_vars_lines", 100)
         self._max_line_len = kwargs.pop("max_line_len", 100)
         super().__init__(*args, **kwargs)
 
-    def formatException(self, exc_info):
+    def formatMessage(self, record):
+        return _PartialStringFormatter().format(self._style._fmt, **vars(record))
+
+    def formatException(self, exc_info):  # pylint: disable=arguments-differ
         vars_lines = pprint.pformat(self._get_locals(exc_info)).split("\n")
 
         if len(vars_lines) > self._max_vars_lines:
@@ -200,11 +186,6 @@ class ExceptionLocalsFormatter(logging.Formatter):
         while tb.tb_next is not None:
             tb = tb.tb_next  # Zoom to the innermost frame
         return tb.tb_frame.f_locals
-
-
-class PartialFormatter(logging.Formatter):
-    def formatMessage(self, record):
-        return _PartialStringFormatter().format(self._style._fmt, **vars(record))
 
 
 class _PartialStringFormatter(string.Formatter):

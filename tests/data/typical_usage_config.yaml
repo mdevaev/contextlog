@@ -6,11 +6,7 @@ loggers:
         handlers: [default]
 formatters:
     default:
-        (): contextlog.make_mixed_formatter
-        formatters:
-            - colorlog.ColoredFormatter
-            - contextlog.PartialFormatter
-            - contextlog.ExceptionLocalsFormatter
+        (): contextlog.SmartFormatter
         style: "{"
         format: "{log_color}{levelname:>7} {purple}{name:20.20}{reset} CTX={ctx} CTX_INT={ctx_internal} {filename}:{lineno}:{funcName} {message}"
 handlers:
