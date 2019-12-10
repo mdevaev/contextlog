@@ -15,7 +15,7 @@ def _get_content(name):
 
 @pytest.fixture(scope="module")
 def typical_usage_config():
-    return yaml.load(_get_content("typical_usage_config.yaml"))
+    return yaml.safe_load(_get_content("typical_usage_config.yaml"))
 
 
 @pytest.fixture(scope="module")

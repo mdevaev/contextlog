@@ -82,14 +82,17 @@ def patch_logging_root():
 
 
 class _SlaveContextLogger(logging.Logger):
-    def _log(self, level, msg, args, exc_info=None, extra=None, stack_info=False):
+    def _log(self, level, msg, args, exc_info=None, extra=None, stack_info=False, stacklevel=1):  # pylint: disable=arguments-differ
         if not isinstance(extra, _ContextDict):
             # This condition is satisfied only when "extra" is not a context from _ContextLog._log().
             # If not a context - get context from a caller and merge with "extra".
             extra = _merge_contexts(_get_context(), (extra or {}))
-        super()._log(level, msg, args, exc_info, extra, stack_info)
+        if sys.version_info.minor < 8:
+            super()._log(level, msg, args, exc_info, extra, stack_info)
+        else:
+            super()._log(level, msg, args, exc_info, extra, stack_info, stacklevel)  # pylint: disable=too-many-function-args,arguments-differ
 
-    def findCaller(self, stack_info=False):
+    def findCaller(self, stack_info=False, stacklevel=1):  # pylint: disable=unused-argument,arguments-differ
         # XXX: Simplified copypaste from logging/__init__.py
         # Removed py2exe and IronPython features
         frame = sys._getframe()
@@ -114,7 +117,7 @@ def patch_threading():
         not pass it explicitly. This hack allows you to inherit the context from the method
         that started a thread. This is useful for libraries that do not use contextlog.
     """
-    if threading.Thread.start != _thread_start:
+    if threading.Thread.start is not _thread_start:
         # We are change the methods, not a class, because some other classes can inherit it BEFORE patching
         threading.Thread.start = _thread_start
         threading.Thread._bootstrap = _thread_bootstrap
